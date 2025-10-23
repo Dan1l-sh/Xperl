@@ -2,6 +2,9 @@ X-Perl UnitFrames
 Author: Zek <Boodhoof-EU>
 License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
+3.1.0
+Фокус по SHift+MMB
+
 3.0.9 (Community Updates)
 mysticalos: Added missing zones to all locals, including Ruby Sanctum
 mysticalos: Added Ruby sanctum custom highlights

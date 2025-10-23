@@ -4083,3 +4083,113 @@ function XPerl_Unit_ThreatStatus(self, relative, immediate)
 		t:Hide()
 	end
 end
+
+do
+    local pending = setmetatable({}, { __mode = "k" })
+
+    local function isXPerlFrame(f)
+        if not f or not f.GetName then return false end
+        local n = f:GetName()
+        return type(n) == "string" and n:match("^XPerl")
+    end
+
+    local function unitOf(f)
+        if not f then return nil end
+        local u
+        if SecureButton_GetUnit then
+            u = SecureButton_GetUnit(f)
+        end
+        if not u and f.GetAttribute then
+            u = f:GetAttribute("unit")
+        end
+        return u
+    end
+
+    local function canApply(f)
+        return f and f.SetAttribute and isXPerlFrame(f) and unitOf(f)
+    end
+
+    local function setBindings(f)
+        local u = unitOf(f)
+        if u == "focus" then
+            -- On the focus frame: Shift+MMB clears focus
+            pcall(f.SetAttribute, f, "shift-type3", "macro")
+            pcall(f.SetAttribute, f, "shift-macrotext3", "/clearfocus")
+        else
+            -- On any other X-Perl unit frame: Shift+MMB sets focus
+            pcall(f.SetAttribute, f, "shift-type3", "macro")
+            pcall(f.SetAttribute, f, "shift-macrotext3", "/focus [@mouseover,exists][@target]")
+        end
+    end
+
+    local function applyNow(f)
+        setBindings(f)
+    end
+
+    local function tryApply(f)
+        if not canApply(f) then return end
+        if InCombatLockdown and InCombatLockdown() then
+            pending[f] = true
+            return
+        end
+        applyNow(f)
+    end
+
+    local function sweepChildren(f)
+        if not f or not f.GetChildren then return end
+        local kids = { f:GetChildren() }
+        for i = 1, #kids do
+            tryApply(kids[i])
+        end
+        if f.nameFrame then
+            tryApply(f.nameFrame)
+        end
+    end
+
+    local function sweepKnown()
+        local names = {
+            "XPerl_Player","XPerl_Player_PortraitFrame","XPerl_Player_NameFrame",
+            "XPerl_Target","XPerl_TargetTarget","XPerl_Focus","XPerl_FocusTarget",
+            "XPerl_Party1","XPerl_Party2","XPerl_Party3","XPerl_Party4",
+            "XPerl_PartyPet1","XPerl_PartyPet2","XPerl_PartyPet3","XPerl_PartyPet4",
+            "XPerl_Raid_Grp1","XPerl_Raid_Grp2","XPerl_Raid_Grp3","XPerl_Raid_Grp4",
+            "XPerl_Raid_Grp5","XPerl_Raid_Grp6","XPerl_Raid_Grp7","XPerl_Raid_Grp8",
+        }
+        for _, n in ipairs(names) do
+            local f = _G[n]
+            if f then
+                tryApply(f)
+                sweepChildren(f)
+            end
+        end
+    end
+
+    local ev = CreateFrame("Frame")
+    ev:RegisterEvent("PLAYER_LOGIN")
+    ev:RegisterEvent("PLAYER_ENTERING_WORLD")
+    ev:RegisterEvent("PLAYER_REGEN_ENABLED")
+    ev:SetScript("OnEvent", function(_, evName)
+        if evName == "PLAYER_REGEN_ENABLED" then
+            -- Apply to frames that couldn't be modified during combat
+            for f in pairs(pending) do
+                if canApply(f) then
+                    applyNow(f)
+                end
+                pending[f] = nil
+            end
+        else
+            sweepKnown()
+        end
+    end)
+
+    -- Hook X-Perl's registration so future frames also get the binding
+    if type(XPerl_RegisterClickCastFrame) == "function" then
+        hooksecurefunc("XPerl_RegisterClickCastFrame", function(f)
+            if f then
+                tryApply(f)
+                sweepChildren(f)
+            end
+        end)
+    end
+end
+
