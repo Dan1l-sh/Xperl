@@ -1,6 +1,6 @@
 ﻿## Interface: 30300
 ## Title: X-Perl UnitFrames by |cFFFF8080Zek|r
-## Version: 3.1.0
+## Version: 3.0.9
 ## Title-ruRU: X-Perl UnitFrames |cFFFF6060Основной|r
 ## Author: Zek
 ## Title-zhCN: X-Perl 核心
@@ -17,7 +17,7 @@
 ## X-License: GNU GPL v3, 29 June 2007
 ## OptionalDeps: LibHealComm-3.0
 ## SavedVariables: XPerlConfig, XPerlConfig_Global, XPerlConfigNew, XPerlConfigSavePerCharacter
-## X-Curse-Packaged-Version: 3.1.0
+## X-Curse-Packaged-Version: 3.0.9
 ## X-Curse-Project-Name: X-Perl UnitFrames
 ## X-Curse-Project-ID: xperl
 ## X-Curse-Repository-ID: wow/xperl/mainline
