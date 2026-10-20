@@ -1996,6 +1996,11 @@ end
 for class,localClass in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do
 	colourList[localClass] = class
 end
+for _, names in ipairs({LOCALIZED_CLASS_NAMES_MALE, LOCALIZED_CLASS_NAMES_FEMALE}) do
+	if (names.DEMONHUNTER) then
+		colourList[names.DEMONHUNTER] = "DEMONHUNTER"
+	end
+end
 
 -- XPerl_GuildStatusUpdate()
 function XPerl_GuildStatusUpdate()

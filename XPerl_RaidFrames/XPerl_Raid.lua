@@ -55,7 +55,7 @@ XPerl_Roster = {}
 local localGroups = LOCALIZED_CLASS_NAMES_MALE
 local WoWclassCount = 0
 for k,v in pairs(localGroups) do WoWclassCount = WoWclassCount + 1 end
-if (not localGroups.DEMONHUNTER) then WoWclassCount = WoWclassCount + 1 end
+if (not rawget(localGroups, "DEMONHUNTER")) then WoWclassCount = WoWclassCount + 1 end
 
 local resSpells  = {
 	[GetSpellInfo(2006)] = true,			-- Resurrection
