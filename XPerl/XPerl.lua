@@ -3,7 +3,24 @@
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
 local conf
-XPerl_RequestConfig(function(New) conf = New end, "$Revision: 363 $")
+
+-- XPerl_CheckRaidClasses
+function XPerl_CheckRaidClasses(raid)
+	if (type(raid) ~= "table" or type(raid.class) ~= "table") then
+		return
+	end
+	for i,info in pairs(raid.class) do
+		if (type(info) == "table" and info.name == "DEMONHUNTER") then
+			return
+		end
+	end
+	tinsert(raid.class, {enable = 1, name = "DEMONHUNTER"})
+	if (type(raid.group) == "table" and not raid.group[#raid.class]) then
+		raid.group[#raid.class] = 1
+	end
+end
+
+XPerl_RequestConfig(function(New) conf = New XPerl_CheckRaidClasses(New.raid) end, "$Revision: 363 $")
 local percD	= "%d"..PERCENT_SYMBOL
 local perc1F = "%.1f"..PERCENT_SYMBOL
 
@@ -1496,6 +1513,15 @@ function XPerl_DebufHighlightInit()
 				show = Curses.Magic or Curses.Curse or Curses.Poison or Curses.Disease
 			end
 			return Curses.Poison or show
+		end
+
+	elseif (playerClass == "DEMONHUNTER") then
+		getShow = function(Curses)
+			local show
+			if (not conf.highlightDebuffs.class) then
+				show = Curses.Magic or Curses.Curse or Curses.Poison or Curses.Disease
+			end
+			return Curses.Magic or show
 		end
 	else
 		getShow = function(Curses)
